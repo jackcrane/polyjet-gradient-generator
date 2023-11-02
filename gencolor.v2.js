@@ -1,13 +1,12 @@
 const overallTimeStart = new Date();
 const { createCanvas } = require("canvas");
+const config = require("./config.json");
 const fs = require("fs");
 const importTime = new Date();
 
 fs.rmSync("./output", { recursive: true });
 fs.mkdirSync("./output");
 const cleanupTime = new Date();
-
-const config = { x: 600, y: 600, density: 1, layers: 1 };
 
 const canvas = createCanvas(config.x, config.y);
 const ctx = canvas.getContext("2d");
@@ -24,6 +23,8 @@ const bezier = (t, p0, p1, p2, p3) => {
   );
 };
 
+let randholder = null;
+
 const main = (i = 0, returnBuffer = false, bezierConfig) => {
   const starttime = new Date();
 
@@ -31,9 +32,9 @@ const main = (i = 0, returnBuffer = false, bezierConfig) => {
 
   if (bezierConfig && bezierConfig.length === 4) {
     p0 = bezierConfig[0];
-    p1 = bezierConfig[1];
+    p1 = 1 - bezierConfig[3];
     p2 = bezierConfig[2];
-    p3 = bezierConfig[3];
+    p3 = 1 - bezierConfig[1];
   } else {
     p0 = 1;
     p1 = 1;
@@ -41,11 +42,60 @@ const main = (i = 0, returnBuffer = false, bezierConfig) => {
     p3 = 1;
   }
 
-  const randholder = Array.from({ length: config.x }, () =>
-    Array.from({ length: config.y }, () =>
-      bezier(randomBetween(), p0, p1, p2, p3)
-    )
-  );
+  if (!returnBuffer && config.useUniformRandom && randholder !== null) {
+    console.log("using uniform random numbers");
+  } else {
+    console.log("generating random numbers");
+    randholder = Array.from({ length: config.x }, () =>
+      Array.from({ length: config.y }, () =>
+        bezier(randomBetween(), p0, p1, p2, p3)
+      )
+    );
+  }
+
+  if (config.paintRand) {
+    // <Render random numbers to canvas>
+    const SCALE = 80;
+    const randholderCanvas = createCanvas(config.x * SCALE, config.y * SCALE);
+    const randholderCtx = randholderCanvas.getContext("2d");
+    // Print the numbers to the canvas
+
+    for (let row = 0; row < config.y; row++) {
+      for (let col = 0; col < config.x; col++) {
+        randholderCtx.font = "25px Arial";
+        randholderCtx.fillStyle = "#fff";
+        randholderCtx.fillRect(col * SCALE, row * SCALE, SCALE, SCALE);
+        randholderCtx.fillStyle = "#000000";
+        randholderCtx.strokeRect(col * SCALE, row * SCALE, SCALE, SCALE);
+        randholderCtx.fillText(
+          randholder[col][row].toFixed(2),
+          col * SCALE + 10,
+          row * SCALE + 40
+        );
+        const rowProgress = row / config.y;
+        randholderCtx.font = "italic 15px Arial";
+        randholderCtx.fillText(
+          rowProgress.toFixed(2),
+          col * SCALE + 10,
+          row * SCALE + 60
+        );
+        randholderCtx.fillStyle =
+          randholder[col][row] > rowProgress ? "red" : "green";
+        randholderCtx.fillText(
+          randholder[col][row] > rowProgress ? "<" : ">",
+          col * SCALE + 50,
+          row * SCALE + 60
+        );
+      }
+    }
+    // Save the canvas to a file
+    const randholderCanvasBuffer = randholderCanvas.toBuffer("image/png");
+    fs.writeFileSync(
+      `./output/slice_${String(i).padStart(3, "0")}_rand.png`,
+      randholderCanvasBuffer
+    );
+    // </Render random numbers to canvas>
+  }
 
   const randholderTime = new Date();
 
@@ -82,10 +132,16 @@ const main = (i = 0, returnBuffer = false, bezierConfig) => {
 };
 
 const loop = (bezierConfig = [0, 0, 1, 1]) => {
+  fs.rmSync("./output", { recursive: true });
+  fs.mkdirSync("./output");
   for (let i = 0; i < config.layers; i++) {
-    main(i, false);
+    main(i, false, bezierConfig);
   }
 };
+
+if (require.main === module) {
+  loop();
+}
 
 const overallTimeEnd = new Date();
 const overallTime = overallTimeEnd - overallTimeStart;
