@@ -12,6 +12,9 @@ const canvas = createCanvas(config.x, config.y);
 const ctx = canvas.getContext("2d");
 const canvasTime = new Date();
 
+const CURRENT_GIT_HASH =
+  require("child_process").execSync("git rev-parse HEAD");
+
 const randomBetween = (min = 0, max = 1) => Math.random() * (max - min) + min;
 const bezier = (t, p0, p1, p2, p3) => {
   const oneMinusT = 1 - t;
@@ -72,17 +75,22 @@ const main = (i = 0, returnBuffer = false, bezierConfig) => {
           col * SCALE + 10,
           row * SCALE + 40
         );
-        const rowProgress = row / config.y;
+        let progress;
+        if (config.gradientDirection === "vertical") {
+          progress = row / config.y;
+        } else if (config.gradientDirection === "horizontal") {
+          progress = col / config.x;
+        }
         randholderCtx.font = "italic 15px Arial";
         randholderCtx.fillText(
-          rowProgress.toFixed(2),
+          progress.toFixed(2),
           col * SCALE + 10,
           row * SCALE + 60
         );
         randholderCtx.fillStyle =
-          randholder[col][row] > rowProgress ? "red" : "green";
+          randholder[col][row] > progress ? "red" : "green";
         randholderCtx.fillText(
-          randholder[col][row] > rowProgress ? "<" : ">",
+          randholder[col][row] > progress ? "<" : ">",
           col * SCALE + 50,
           row * SCALE + 60
         );
@@ -100,10 +108,14 @@ const main = (i = 0, returnBuffer = false, bezierConfig) => {
   const randholderTime = new Date();
 
   for (let row = 0; row < config.y; row++) {
-    const rowProgress = row / config.y;
-
     for (let col = 0; col < config.x; col++) {
-      if (rowProgress > randholder[col][row]) {
+      let progress;
+      if (config.gradientDirection === "vertical") {
+        progress = row / config.y;
+      } else if (config.gradientDirection === "horizontal") {
+        progress = col / config.x;
+      }
+      if (progress > randholder[col][row]) {
         ctx.fillStyle = "#0089a6";
         ctx.fillRect(col, row, config.density, config.density);
       } else {
