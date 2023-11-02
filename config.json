@@ -2,7 +2,7 @@
   "x": 1200,
   "y": 300,
   "density": 1,
-  "layers": 100,
+  "layers": 10,
   "paintRand": false,
   "useUniformRandom": true,
   "gradientDirection": "horizontal",

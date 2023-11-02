@@ -28,6 +28,9 @@ const cleanupTime = new Date();
 
 const canvas = createCanvas(config.x, config.y);
 const ctx = canvas.getContext("2d");
+ctx.imageSmoothingEnabled = false;
+ctx.filter = "url(#crisp)";
+ctx.antialias = "none";
 const canvasTime = new Date();
 
 const CURRENT_GIT_HASH =
@@ -146,7 +149,11 @@ const main = (i = 0, returnBuffer = false, bezierConfig) => {
     }
   }
 
-  if (config.bottomLayerText.include) {
+  if (
+    config.bottomLayerText.include &&
+    config.bottomLayerText.layerCount > i &&
+    !returnBuffer
+  ) {
     ctx.font = `40px Arial`;
     ctx.fillStyle = config.bottomLayerText.color;
     let currentDate = new Date();
