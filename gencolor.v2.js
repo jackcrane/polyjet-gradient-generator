@@ -147,13 +147,43 @@ const main = (i = 0, returnBuffer = false, bezierConfig) => {
   }
 
   if (config.bottomLayerText.include) {
-    ctx.font = `50px Arial`;
+    ctx.font = `40px Arial`;
     ctx.fillStyle = config.bottomLayerText.color;
-    if (config.bottomLayerText.text) {
-      ctx.fillText(config.bottomLayerText.text, 25, 25 + 50);
-      ctx.fillText(`git hash: ${CURRENT_GIT_HASH}`, 25, 25 + 50 + 50);
+    let currentDate = new Date();
+    let formattedDate = `${currentDate.getFullYear()}-${(
+      currentDate.getMonth() + 1
+    )
+      .toString()
+      .padStart(2, "0")}-${currentDate
+      .getDate()
+      .toString()
+      .padStart(2, "0")} ${currentDate
+      .getHours()
+      .toString()
+      .padStart(2, "0")}:${currentDate
+      .getMinutes()
+      .toString()
+      .padStart(2, "0")}`;
+
+    if (config.bottomLayerText.line1) {
+      ctx.fillText(config.bottomLayerText.line1, 25, 25 + 50);
+      ctx.fillText(
+        `generator git hash: ${CURRENT_GIT_HASH}${
+          LOCAL_HAS_CHANGES ? " [Δ]" : ""
+        }`,
+        25,
+        25 + 50 + 50
+      );
+      ctx.fillText(`generated at: ${formattedDate}`, 25, 25 + 50 + 50 + 50);
     } else {
-      ctx.fillText(`git hash: ${CURRENT_GIT_HASH}`, 25, 25 + 50);
+      ctx.fillText(
+        `generator git hash: ${CURRENT_GIT_HASH}${
+          LOCAL_HAS_CHANGES ? " [Δ]" : ""
+        }`,
+        25,
+        25 + 50
+      );
+      ctx.fillText(`generated at: ${formattedDate}`, 25, 25 + 50 + 50);
     }
   }
 
