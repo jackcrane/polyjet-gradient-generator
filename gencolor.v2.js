@@ -50,9 +50,7 @@ const bezier = (t, p0, p1, p2, p3) => {
 
 let randholder = null;
 
-const main = (i = 0, returnBuffer = false, bezierConfig) => {
-  const starttime = new Date();
-
+const orientBezier = (bezierConfig) => {
   let p0, p1, p2, p3;
 
   if (bezierConfig && bezierConfig.length === 4) {
@@ -67,17 +65,10 @@ const main = (i = 0, returnBuffer = false, bezierConfig) => {
     p3 = 1;
   }
 
-  if (!returnBuffer && config.useUniformRandom && randholder !== null) {
-    console.log("using uniform random numbers");
-  } else {
-    console.log("generating random numbers");
-    randholder = Array.from({ length: config.x }, () =>
-      Array.from({ length: config.y }, () =>
-        bezier(randomBetween(), p0, p1, p2, p3)
-      )
-    );
-  }
+  return [p0, p1, p2, p3];
+};
 
+const paintRandomNumbers = (randholder) => {
   if (config.paintRand) {
     // <Render random numbers to canvas>
     const SCALE = 80;
@@ -126,9 +117,9 @@ const main = (i = 0, returnBuffer = false, bezierConfig) => {
     );
     // </Render random numbers to canvas>
   }
+};
 
-  const randholderTime = new Date();
-
+const paintGradient = (randholder) => {
   for (let row = 0; row < config.y; row++) {
     for (let col = 0; col < config.x; col++) {
       let progress;
@@ -146,7 +137,118 @@ const main = (i = 0, returnBuffer = false, bezierConfig) => {
       }
     }
   }
+};
 
+function rgbToHsv(r, g, b) {
+  (r /= 255), (g /= 255), (b /= 255);
+
+  var max = Math.max(r, g, b),
+    min = Math.min(r, g, b);
+  var h,
+    s,
+    v = max;
+
+  var d = max - min;
+  s = max == 0 ? 0 : d / max;
+
+  if (max == min) {
+    h = 0; // achromatic
+  } else {
+    switch (max) {
+      case r:
+        h = (g - b) / d + (g < b ? 6 : 0);
+        break;
+      case g:
+        h = (b - r) / d + 2;
+        break;
+      case b:
+        h = (r - g) / d + 4;
+        break;
+    }
+
+    h /= 6;
+  }
+
+  return [h, s, v];
+}
+
+function hueToCMY(hue) {
+  hue = hue % 360; // Normalize the hue to be within 0-360 degrees
+  let c = 0,
+    m = 0,
+    y = 0;
+
+  if (hue < 60) {
+    // Transition from red to yellow (magenta decreases)
+    m = 1 - hue / 60;
+    y = 1;
+  } else if (hue < 180) {
+    // Transition from yellow to cyan (yellow decreases, cyan increases)
+    c = (hue - 60) / 120;
+    y = 1 - c;
+  } else if (hue < 300) {
+    // Transition from cyan to magenta (cyan decreases, magenta increases)
+    m = (hue - 180) / 120;
+    c = 1 - m;
+  } else {
+    // Transition from magenta to red (yellow increases)
+    y = (hue - 300) / 60;
+    m = 1;
+  }
+
+  // Ensuring values are between 0 and 1
+  c = Math.max(0, Math.min(1, c));
+  m = Math.max(0, Math.min(1, m));
+  y = Math.max(0, Math.min(1, y));
+
+  return [c, m, y];
+}
+
+const paintSolidColor = (randholder) => {
+  const colorInHsv = rgbToHsv(...config.color);
+  const [cyanThreshold, magentaThreshold, yellowThreshold] = hueToCMY(
+    colorInHsv[0] * 360
+  );
+
+  for (let row = 0; row < config.y; row++) {
+    for (let col = 0; col < config.x; col++) {
+      const whiteThreshold = Math.random();
+      if (whiteThreshold > colorInHsv[1]) {
+        const blackThreshold = Math.random();
+        if (blackThreshold > colorInHsv[2]) {
+          const randomNumberThreshold = Math.random();
+          if (randomNumberThreshold < 0.33) {
+            ctx.fillStyle = "#00FFFF";
+          } else if (randomNumberThreshold < 0.66) {
+            ctx.fillStyle = "#FF00FF";
+          } else {
+            ctx.fillStyle = "#FFFF00";
+          }
+          // Paints black
+        } else {
+          ctx.fillStyle = "#ffffff";
+        }
+        ctx.fillRect(col, row, config.density, config.density);
+      } else {
+        if (randholder[col][row] < cyanThreshold) {
+          ctx.fillStyle = "#00ffff";
+          ctx.fillRect(col, row, config.density, config.density);
+        } else if (randholder[col][row] < magentaThreshold) {
+          ctx.fillStyle = "#ff00ff";
+          ctx.fillRect(col, row, config.density, config.density);
+        } else if (randholder[col][row] < yellowThreshold) {
+          ctx.fillStyle = "#ffff00";
+          ctx.fillRect(col, row, config.density, config.density);
+        } else {
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(col, row, config.density, config.density);
+        }
+      }
+    }
+  }
+};
+
+const drawBottomLayerText = (returnBuffer, i) => {
   if (
     config.bottomLayerText.include &&
     config.bottomLayerText.layerCount > i &&
@@ -191,6 +293,32 @@ const main = (i = 0, returnBuffer = false, bezierConfig) => {
       ctx.fillText(`generated at: ${formattedDate}`, 25, 25 + 50 + 50);
     }
   }
+};
+
+const main = (i = 0, returnBuffer = false, bezierConfig) => {
+  const starttime = new Date();
+
+  let [p0, p1, p2, p3] = orientBezier(bezierConfig);
+
+  if (!returnBuffer && config.useUniformRandom && randholder !== null) {
+    console.log("using uniform random numbers");
+  } else {
+    console.log("generating random numbers");
+    randholder = Array.from({ length: config.x }, () =>
+      Array.from({ length: config.y }, () =>
+        bezier(randomBetween(), p0, p1, p2, p3)
+      )
+    );
+  }
+
+  paintRandomNumbers(randholder);
+
+  const randholderTime = new Date();
+
+  // paintGradient(randholder);
+  paintSolidColor(randholder);
+
+  drawBottomLayerText(returnBuffer, i);
 
   const drawTime = new Date();
 

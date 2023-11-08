@@ -77,6 +77,7 @@ function hueToCMY(hue) {
   return [c, m, y];
 }
 
+console.log(rgbToHsv(255, 255, 0));
 // console.log(hueToCMY(parseFloat(process.argv[2])));
 
 const ratios = hueToCMY(config.color);
