@@ -34,10 +34,8 @@ ctx.antialias = "none";
 const canvasTime = new Date();
 
 const CURRENT_GIT_HASH =
-  require("child_process")
-    .execSync("git rev-parse HEAD")
-    .toString()
-    .substring(0, 7) || "GIT_HASH_NOT_FOUND";
+  child_process.execSync("git rev-parse HEAD").toString().substring(0, 7) ||
+  "GIT_HASH_NOT_FOUND";
 
 const randomBetween = (min = 0, max = 1) => Math.random() * (max - min) + min;
 const bezier = (t, p0, p1, p2, p3) => {
