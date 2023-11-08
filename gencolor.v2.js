@@ -129,10 +129,10 @@ const paintGradient = (randholder) => {
         progress = col / config.x;
       }
       if (progress > randholder[col][row]) {
-        ctx.fillStyle = "#0089a6";
+        ctx.fillStyle = config.colors.cyan;
         ctx.fillRect(col, row, config.density, config.density);
       } else {
-        ctx.fillStyle = "#ffffff";
+        ctx.fillStyle = config.colors.white;
         ctx.fillRect(col, row, config.density, config.density);
       }
     }
@@ -218,29 +218,29 @@ const paintSolidColor = (randholder) => {
         if (blackThreshold > colorInHsv[2]) {
           const randomNumberThreshold = Math.random();
           if (randomNumberThreshold < 0.33) {
-            ctx.fillStyle = "#00FFFF";
+            ctx.fillStyle = config.colors.cyan;
           } else if (randomNumberThreshold < 0.66) {
-            ctx.fillStyle = "#FF00FF";
+            ctx.fillStyle = config.colors.magenta;
           } else {
-            ctx.fillStyle = "#FFFF00";
+            ctx.fillStyle = config.colors.yellow;
           }
           // Paints black
         } else {
-          ctx.fillStyle = "#ffffff";
+          ctx.fillStyle = config.colors.white;
         }
         ctx.fillRect(col, row, config.density, config.density);
       } else {
         if (randholder[col][row] < cyanThreshold) {
-          ctx.fillStyle = "#00ffff";
+          ctx.fillStyle = config.colors.cyan;
           ctx.fillRect(col, row, config.density, config.density);
         } else if (randholder[col][row] < magentaThreshold) {
-          ctx.fillStyle = "#ff00ff";
+          ctx.fillStyle = config.colors.magenta;
           ctx.fillRect(col, row, config.density, config.density);
         } else if (randholder[col][row] < yellowThreshold) {
-          ctx.fillStyle = "#ffff00";
+          ctx.fillStyle = config.colors.yellow;
           ctx.fillRect(col, row, config.density, config.density);
         } else {
-          ctx.fillStyle = "#ffffff";
+          ctx.fillStyle = config.colors.white;
           ctx.fillRect(col, row, config.density, config.density);
         }
       }
@@ -251,7 +251,7 @@ const paintSolidColor = (randholder) => {
 const drawBottomLayerText = (returnBuffer, i) => {
   if (
     config.bottomLayerText.include &&
-    config.bottomLayerText.layerCount > i &&
+    i >= config.layers - config.bottomLayerText.layerCount &&
     !returnBuffer
   ) {
     ctx.font = `40px Arial`;
