@@ -204,14 +204,35 @@ function hueToCMY(hue) {
   return [c, m, y];
 }
 
-const paintSolidColor = (randholder) => {
-  const colorInHsv = rgbToHsv(...config.color);
+const paintSolidColor = (
+  randholder,
+  _config = {
+    startX: 0,
+    startY: 0,
+    width: config.x,
+    height: config.y,
+    color: config.color,
+    colorMode: "rgb",
+  }
+) => {
+  const { startX, startY, width, height, color, colorMode } = _config;
+  let colorInHsv;
+  if (colorMode === "rgb") {
+    colorInHsv = rgbToHsv(...color);
+  } else if (colorMode === "hsv") {
+    colorInHsv = color;
+  }
+
   const [cyanThreshold, magentaThreshold, yellowThreshold] = hueToCMY(
     colorInHsv[0] * 360
   );
 
-  for (let row = 0; row < config.y; row++) {
-    for (let col = 0; col < config.x; col++) {
+  // Calculate the ending x and y coordinates based on the starting point and dimensions
+  const endX = startX + width;
+  const endY = startY + height;
+
+  for (let row = startY; row < endY && row < config.y; row++) {
+    for (let col = startX; col < endX && col < config.x; col++) {
       const whiteThreshold = Math.random();
       if (whiteThreshold > colorInHsv[1]) {
         const blackThreshold = Math.random();
@@ -224,7 +245,6 @@ const paintSolidColor = (randholder) => {
           } else {
             ctx.fillStyle = config.colors.yellow;
           }
-          // Paints black
         } else {
           ctx.fillStyle = config.colors.white;
         }
@@ -295,48 +315,89 @@ const drawBottomLayerText = (returnBuffer, i) => {
   }
 };
 
-const main = (i = 0, returnBuffer = false, bezierConfig) => {
-  const starttime = new Date();
+const drawColorWheel = (i, randholder) => {
+  const cartesianToPolar = (x, y) => {
+    const center = [config.x / 2, config.y / 2];
+    const dx = x - center[0];
+    const dy = y - center[1];
+    const theta = Math.atan2(dy, dx);
+    const r = Math.sqrt(dx * dx + dy * dy);
+    return [theta, r];
+  };
 
-  let [p0, p1, p2, p3] = orientBezier(bezierConfig);
+  for (let i = 0; i < config.x / 2; i += 10) {
+    for (let j = 0; j < config.y / 2; j += 10) {
+      const [theta, rad] = cartesianToPolar(i, j);
+      const hue = (theta / Math.PI + 1) / 2;
+      const saturation = rad / (config.x / 2);
+      const value = 1;
 
-  if (!returnBuffer && config.useUniformRandom && randholder !== null) {
-    console.log("using uniform random numbers");
-  } else {
-    console.log("generating random numbers");
-    randholder = Array.from({ length: config.x }, () =>
-      Array.from({ length: config.y }, () =>
-        bezier(randomBetween(), p0, p1, p2, p3)
-      )
-    );
+      const [c, m, y] = hueToCMY(hue * 360);
+
+      paintSolidColor(randholder, {
+        startX: i,
+        startY: j,
+        width: 10,
+        height: 10,
+        color: [hue, saturation, value],
+        colorMode: "hsv",
+      });
+    }
   }
 
-  paintRandomNumbers(randholder);
-
-  const randholderTime = new Date();
-
-  // paintGradient(randholder);
-  paintSolidColor(randholder);
-
-  drawBottomLayerText(returnBuffer, i);
-
-  const drawTime = new Date();
-
   const buffer = canvas.toBuffer("image/png");
-  if (returnBuffer) return buffer;
-
   fs.writeFileSync(`./output/slice_${String(i).padStart(3, "0")}.png`, buffer);
-
-  const endtime = new Date();
-  const time = endtime - starttime;
-  console.log(
-    `saved ${i}.png in ${time} ms. [rand, draw, export] [${
-      randholderTime - starttime
-    }ms, ${drawTime - randholderTime} ms, ${endtime - drawTime} ms] [${
-      randholderTime - starttime
-    } ${drawTime - randholderTime} ${endtime - drawTime}]`
-  );
 };
+
+const main = (i = 0) => {
+  const randholder = Array.from({ length: config.x }, () =>
+    Array.from({ length: config.y }, () => randomBetween())
+  );
+  drawColorWheel(i, randholder);
+};
+
+// const _main = (i = 0, returnBuffer = false, bezierConfig) => {
+//   const starttime = new Date();
+
+//   let [p0, p1, p2, p3] = orientBezier(bezierConfig);
+
+//   if (!returnBuffer && config.useUniformRandom && randholder !== null) {
+//     console.log("using uniform random numbers");
+//   } else {
+//     console.log("generating random numbers");
+//     randholder = Array.from({ length: config.x }, () =>
+//       Array.from({ length: config.y }, () =>
+//         bezier(randomBetween(), p0, p1, p2, p3)
+//       )
+//     );
+//   }
+
+//   paintRandomNumbers(randholder);
+
+//   const randholderTime = new Date();
+
+//   // paintGradient(randholder);
+//   paintSolidColor(randholder);
+
+//   drawBottomLayerText(returnBuffer, i);
+
+//   const drawTime = new Date();
+
+//   const buffer = canvas.toBuffer("image/png");
+//   if (returnBuffer) return buffer;
+
+//   fs.writeFileSync(`./output/slice_${String(i).padStart(3, "0")}.png`, buffer);
+
+//   const endtime = new Date();
+//   const time = endtime - starttime;
+//   console.log(
+//     `saved ${i}.png in ${time} ms. [rand, draw, export] [${
+//       randholderTime - starttime
+//     }ms, ${drawTime - randholderTime} ms, ${endtime - drawTime} ms] [${
+//       randholderTime - starttime
+//     } ${drawTime - randholderTime} ${endtime - drawTime}]`
+//   );
+// };
 
 const loop = (bezierConfig = [0, 0, 1, 1]) => {
   fs.rmSync("./output", { recursive: true });
@@ -354,4 +415,11 @@ const overallTimeEnd = new Date();
 const overallTime = overallTimeEnd - overallTimeStart;
 console.log(`finished in ${overallTime} ms (${overallTime / 1000} s)`);
 
-module.exports = { main, loop };
+module.exports = {
+  main,
+  loop,
+  drawBottomLayerText,
+  paintSolidColor,
+  hueToCMY,
+  rgbToHsv,
+};
