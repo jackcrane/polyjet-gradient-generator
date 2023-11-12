@@ -3,8 +3,11 @@ import config from "./config.json" assert { type: "json" };
 import fs from "fs";
 import { randomBetween } from "./lib/randomBetween.js";
 import { paintSolidColor } from "./lib/paintSolidColor.js";
+fs.rmSync("./output", { recursive: true });
+fs.mkdirSync("./output");
 
 const drawColorWheel = (i, randholder, ctx, canvas) => {
+  let times = {};
   const cartesianToPolar = (x, y) => {
     const center = [config.x / 2, config.y / 2];
     const dx = x - center[0];
@@ -28,24 +31,25 @@ const drawColorWheel = (i, randholder, ctx, canvas) => {
     );
   };
 
-  // Calculate the maximum distance to the midpoint of each side
-  const maxDistToSideMidpoint = Math.max(config.x, config.y) / 2;
-
   for (let i = 0; i < config.x; i += config.resolution) {
     for (let j = 0; j < config.y; j += config.resolution) {
-      if (!isPointInOval(i, j)) {
+      const pointIsInOval = isPointInOval(i, j);
+
+      if (!pointIsInOval) {
         ctx.fillStyle = config.colors.void;
         ctx.fillRect(i, j, config.resolution, config.resolution);
       } else {
         const [theta, rad] = cartesianToPolar(i, j);
-        const hue = (theta / Math.PI + 1) / 2;
+        const hue = ((theta / Math.PI + 1) / 2) * 360;
+        // const hue = theta / (2 * Math.PI);
 
         // Adjust saturation calculation
         const edgeRadius = Math.min(
           config.x / 2 / Math.abs(Math.cos(theta)),
           config.y / 2 / Math.abs(Math.sin(theta))
         );
-        const saturation = Math.min(rad / edgeRadius, 1);
+        // const saturation = Math.min(rad / edgeRadius, 1);
+        const saturation = 1;
 
         const value = 1;
 
@@ -57,6 +61,11 @@ const drawColorWheel = (i, randholder, ctx, canvas) => {
           color: [hue, saturation, value],
           colorMode: "hsv",
         });
+        // console.log(hue, saturation, value);
+        // ctx.fillStyle = `hsl(${hue * 360}, ${saturation * 100}%, ${
+        //   value * 100
+        // }%)`;
+        // ctx.fillRect(i, j, config.resolution, config.resolution);
       }
 
       ctx.fillStyle = config.colors.clear;
