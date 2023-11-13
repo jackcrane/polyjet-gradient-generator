@@ -48,8 +48,7 @@ const drawColorWheel = (i, randholder, ctx, canvas) => {
           config.x / 2 / Math.abs(Math.cos(theta)),
           config.y / 2 / Math.abs(Math.sin(theta))
         );
-        // const saturation = Math.min(rad / edgeRadius, 1);
-        const saturation = 1;
+        const saturation = Math.min(rad / edgeRadius, 1);
 
         const value = 1;
 
@@ -61,31 +60,10 @@ const drawColorWheel = (i, randholder, ctx, canvas) => {
           color: [hue, saturation, value],
           colorMode: "hsv",
         });
-        // console.log(hue, saturation, value);
 
         // ctx.fillStyle = `hsl(${hue}, ${saturation * 100}%, ${value * 50}%)`;
         // ctx.fillRect(i, j, config.resolution, config.resolution);
       }
-
-      ctx.fillStyle = config.colors.clear;
-      ctx.fillRect(config.x / 2, config.y / 20, 4, config.y / 8);
-      ctx.fillRect(config.x / 20, config.y / 2, config.x / 8, 2);
-      ctx.fillRect(
-        config.x / 2,
-        config.y - (config.y / 20) * 4,
-        4,
-        config.y / 8
-      );
-      ctx.fillRect(
-        config.x - (config.x / 20) * 4,
-        config.y / 2,
-        config.x / 8,
-        2
-      );
-
-      // Outline the block
-      ctx.lineWidth = 1;
-      // ctx.strokeRect(i, j, config.resolution, config.resolution);
     }
   }
 
