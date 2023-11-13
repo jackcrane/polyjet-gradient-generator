@@ -62,9 +62,8 @@ const drawColorWheel = (i, randholder, ctx, canvas) => {
           colorMode: "hsv",
         });
         // console.log(hue, saturation, value);
-        // ctx.fillStyle = `hsl(${hue * 360}, ${saturation * 100}%, ${
-        //   value * 100
-        // }%)`;
+
+        // ctx.fillStyle = `hsl(${hue}, ${saturation * 100}%, ${value * 50}%)`;
         // ctx.fillRect(i, j, config.resolution, config.resolution);
       }
 
