@@ -48,7 +48,8 @@ const drawColorWheel = (i, randholder, ctx, canvas) => {
           config.x / 2 / Math.abs(Math.cos(theta)),
           config.y / 2 / Math.abs(Math.sin(theta))
         );
-        const saturation = Math.min(rad / edgeRadius, 1);
+        // const saturation = Math.min(rad / edgeRadius, 1);
+        const saturation = 1;
 
         const value = 1;
 
