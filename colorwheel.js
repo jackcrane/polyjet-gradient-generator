@@ -7,7 +7,7 @@ fs.rmSync("./output", { recursive: true });
 fs.mkdirSync("./output");
 
 const drawColorWheel = (i, randholder, ctx, canvas) => {
-  let times = {};
+  const startTime = Date.now();
   const cartesianToPolar = (x, y) => {
     const center = [config.x / 2, config.y / 2];
     const dx = x - center[0];
@@ -89,8 +89,24 @@ const drawColorWheel = (i, randholder, ctx, canvas) => {
     }
   }
 
-  const buffer = canvas.toBuffer("image/png");
+  const canvasToWrite = createCanvas(config.x * 2, config.y);
+  const ctxToWrite = canvasToWrite.getContext("2d");
+  ctxToWrite.imageSmoothingEnabled = false;
+  ctxToWrite.filter = "url(#crisp)";
+  ctxToWrite.antialias = "none";
+  ctxToWrite.drawImage(canvas, 0, 0, config.x * 2, config.y);
+
+  const buffer = canvasToWrite.toBuffer("image/png");
   fs.writeFileSync(`./output/slice_${String(i).padStart(3, "0")}.png`, buffer);
+
+  const endTime = Date.now();
+  console.log(
+    `Finished slice ${i} in ${
+      endTime - startTime
+    }ms. Estimated time remaining: ${
+      ((endTime - startTime) * (config.layers - i)) / 1000
+    }s`
+  );
 };
 
 const main = (i = 0) => {

@@ -2,7 +2,7 @@
   "x": 600,
   "y": 600,
   "density": 1,
-  "layers": 1,
+  "layers": 100,
   "resolution": 1,
   "paintRand": false,
   "useUniformRandom": true,
@@ -22,7 +22,7 @@
     "yellow": "#F0C500",
     "void": "#000000",
     "clear": "#E3E9FD",
-    "error": "#000000"
+    "error": "#00ff00"
   },
   "tune": {
     "cyan": 1,
