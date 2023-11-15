@@ -38,7 +38,7 @@
 \large Jack Crane \textit{jack.crane@slu.edu}
 
 \noindent
-\large Saint Louis University Center for Addditive Manufacturing \textit{slu.cam@slu.edu}
+\large Saint Louis University Center for Additive Manufacturing \textit{slu.cam@slu.edu}
 \normalsize
 \\\\
 \noindent\fbox{%
@@ -48,9 +48,9 @@
 }
 \\
 
-%\begin{multicols}{2}
+\begin{multicols}{2}
 \tableofcontents
-%\end{multicols}
+\end{multicols}
 
 \vspace*{\fill}
 \noindent
@@ -356,7 +356,7 @@ Using the same logic as we used to distribute colors randomly in the gradient, w
 \\
 
 \noindent
-This works great except it doesn't actually solve our problem all the way. It is able to normalize the color so that the lightness\footnote{Not to be confused with the lightness component of an HSL color. We are using HSV, not HSL, and while they are similar, it is important to note that anytime lightness or darkness is referenced in this paper, it is in reference to the value component.} or contrast of the color is not a factor and allows it to be more granually controlled in the part, but it still uses the blue color which is not installed, and still uses black to describe darkness, which is likewise not installed. 
+This works great except it doesn't actually solve our problem all the way. It is able to normalize the color so that the lightness\footnote{Not to be confused with the lightness component of an HSL color. We are using HSV, not HSL, and while they are similar, it is important to note that anytime lightness or darkness is referenced in this paper, it is in reference to the value component.} or contrast of the color is not a factor and allows it to be more granularly controlled in the part, but it still uses the blue color which is not installed, and still uses black to describe darkness, which is likewise not installed. 
 
 \subsection{Converting from hue to CMY}
 
@@ -411,7 +411,215 @@ The logic for converting the directional position of our color of focus to a rat
 \\
 
 \noindent
-This fill algorithm extends on the algorithm defined in \ref{converting to hsv}, but instead of simply assigning blue to any pixel who's random value is less than 0.75, we have to randomly distribute cyan and magenta in the ratios calculated above. This is accomplished by generating another random number, and if it is less than 0.83, a cyan pixel is placed, and if it is greater than 0.83, a magenta pixel is placed. 
+The color ratios connect to hue positions as follows:
+
+\noindent
+\resizebox{\columnwidth}{!}{
+\begin{tikzpicture}
+\begin{axis}[
+    xlabel={Hue},
+    ylabel={Values},
+    legend style={at={(0.2,0.30)},anchor=north},
+    legend entries={Cyan, Magenta, Yellow},
+    xmin=0, xmax=360,
+    ymin=0, ymax=1,
+    ytick={0,0.2,0.4,0.6,0.8,1},
+    grid=both,
+    grid style={dashed,gray!50},
+]
+
+\addplot[cyan] table [x index=0, y index=1, col sep=comma] {0-360-data.csv};
+\addplot[magenta,dashdotted] table [x index=0, y index=2, col sep=comma] {0-360-data.csv};
+\addplot[yellow,dashed] table [x index=0, y index=3, col sep=comma] {0-360-data.csv};
+\end{axis}
+
+\end{tikzpicture}
+}
+\\
+
+\noindent
+This is achieved by breaking the computation into 4 blocks:
+
+\subsubsection{Hue is between 0 and 60} \label{0-60}
+When the hue is between 0 and 60, it is transforming between an equal mesh of magenta and yellow to a fully yellow color set. Cyan will always be zero.
+
+\noindent\fbox{%
+    \parbox{0.96\columnwidth}{%
+		\noindent
+		$magenta=\frac{(60-hue)}{60} * 0.5$
+		
+		\noindent
+		$yellow = 1 - magenta$
+		
+		\noindent
+		$cyan = 0$
+	}
+}\\
+
+\noindent
+When supplied with 0, the function should return [0, .5, .5], and supplied with 60, should return [0, 0, 1]
+
+\noindent
+\resizebox{\columnwidth}{!}{
+\begin{tikzpicture}
+\begin{axis}[
+    xlabel={Hue},
+    ylabel={Values},
+    legend style={at={(0.2,0.30)},anchor=north},
+    legend entries={Cyan, Magenta, Yellow},
+    xmin=0, xmax=59,
+    ymin=0, ymax=1,
+    xtick={0,10,20,30,40,50},
+    ytick={0,0.2,0.4,0.6,0.8,1},
+    grid=both,
+    grid style={dashed,gray!50},
+]
+
+\addplot[cyan] table [x index=0, y index=1, col sep=comma] {0-60-data.csv};
+\addplot[magenta,dashdotted] table [x index=0, y index=2, col sep=comma] {0-60-data.csv};
+\addplot[yellow,dashed] table [x index=0, y index=3, col sep=comma] {0-60-data.csv};
+\end{axis}
+
+\end{tikzpicture}
+}
+
+\subsubsection{Hue is between 60 and 180}
+
+When the hue is between 60 and 180, the colors are transforming from completely yellow to completely cyan. Magenta will always be zero.
+\\
+
+\noindent\fbox{%
+    \parbox{0.96\columnwidth}{%
+		\noindent
+		$magenta=0$
+		
+		\noindent
+		$yellow = \frac{180-hue}{120}$
+		
+		\noindent
+		$cyan = 1-yellow$
+	}
+}\\
+
+\noindent
+When supplied with 60, the function should return [0, 0, 1], and when supplied with 180, it should return [1, 0, 0]. At 120, it should return [0.5, 0, 0.5].
+
+\noindent
+\resizebox{\columnwidth}{!}{
+\begin{tikzpicture}
+\begin{axis}[
+    xlabel={Hue},
+    ylabel={Values},
+    legend style={at={(0.5,0.30)},anchor=north},
+    legend entries={Cyan, Magenta, Yellow},
+    xmin=60, xmax=179,
+    ymin=0, ymax=1,
+    xtick={60,80,100,120,140,160},
+    ytick={0,0.2,0.4,0.6,0.8,1},
+    grid=both,
+    grid style={dashed,gray!50},
+]
+
+\addplot[cyan] table [x index=0, y index=1, col sep=comma] {60-180-data.csv};
+\addplot[magenta,dashdotted] table [x index=0, y index=2, col sep=comma] {60-180-data.csv};
+\addplot[yellow,dashed] table [x index=0, y index=3, col sep=comma] {60-180-data.csv};
+\end{axis}
+
+\end{tikzpicture}
+}
+
+\subsubsection{Hue is between 180 and 300}
+
+When the hue is between 180 and 300, the colors are moving from completely cyan to completely magenta. \\
+
+\noindent\fbox{%
+    \parbox{0.96\columnwidth}{%
+		\noindent
+		$cyan = \frac{300-hue}{120}$
+		
+		\noindent
+		$magenta=1 - cyan$
+		
+		\noindent
+		$yellow = 0$
+	}
+}\\
+
+\noindent
+When supplied with 180, the function should return [1, 0, 0]. At 300, it should return [0, 1, 0], and at 240 it should return [0.5, 0.5, 0].
+
+\noindent
+\resizebox{\columnwidth}{!}{
+\begin{tikzpicture}
+\begin{axis}[
+    xlabel={Hue},
+    ylabel={Values},
+    legend style={at={(0.5,0.30)},anchor=north},
+    legend entries={Cyan, Magenta, Yellow},
+    xmin=180, xmax=299,
+    ymin=0, ymax=1,
+    xtick={180,200,220,240,260,280},
+    ytick={0,0.2,0.4,0.6,0.8,1},
+    grid=both,
+    grid style={dashed,gray!50},
+]
+
+\addplot[cyan] table [x index=0, y index=1, col sep=comma] {180-300-data.csv};
+\addplot[magenta,dashdotted] table [x index=0, y index=2, col sep=comma] {180-300-data.csv};
+\addplot[yellow,dashed] table [x index=0, y index=3, col sep=comma] {180-300-data.csv};
+\end{axis}
+
+\end{tikzpicture}
+}
+
+\subsubsection{Hue is between 300 and 360}
+
+When the hue is between 300 and 360, it is moving from completely magenta to an even split between magenta and yellow. \\
+
+\noindent\fbox{%
+    \parbox{0.96\columnwidth}{%
+		\noindent
+		$magenta = \frac{420-hue}{120}$
+		
+		\noindent
+		$yellow=1 - magenta$
+		
+		\noindent
+		$cyan = 0$
+	}
+}\\
+
+\noindent
+When supplied with 300, the function should return [0, 1, 0]. 360 should be [0, 0.5, 0.5], and 330 should be [0, 0.75, 0.25].
+
+\noindent
+\resizebox{\columnwidth}{!}{
+\begin{tikzpicture}
+\begin{axis}[
+    xlabel={Hue},
+    ylabel={Values},
+    legend style={at={(0.5,0.30)},anchor=north},
+    legend entries={Cyan, Magenta, Yellow},
+    xmin=300, xmax=359,
+    ymin=0, ymax=1,
+    xtick={300, 310, 320, 330, 340, 350},
+    ytick={0,0.2,0.4,0.6,0.8,1},
+    grid=both,
+    grid style={dashed,gray!50},
+]
+
+\addplot[cyan] table [x index=0, y index=1, col sep=comma] {300-360-data.csv};
+\addplot[magenta,dashdotted] table [x index=0, y index=2, col sep=comma] {300-360-data.csv};
+\addplot[yellow,dashed] table [x index=0, y index=3, col sep=comma] {300-360-data.csv};
+\end{axis}
+
+\end{tikzpicture}
+}
+
+\subsection{Filling a solid color}
+
+\noindent
+The fill algorithm extends on the algorithm defined in \ref{converting to hsv}, but instead of simply assigning blue to any pixel who's random value is less than 0.75, we have to randomly distribute cyan and magenta in the ratios calculated above. This is accomplished by generating another random number, and if it is less than 0.83, a cyan pixel is placed, and if it is greater than 0.83, a magenta pixel is placed. 
 \\
 
 \noindent
@@ -428,6 +636,18 @@ After printing 100 randomized layers generated by this algorithm, A dark blue sw
 
 \noindent
 \includegraphics[width=\columnwidth]{ffa4d66-result-1}
+\\
+
+\noindent
+At a simple level, this works just like the gradient in how it runs through data and uses random numbers to place colors. Originally I had thought I would need to break whatever image or part into groups of pixels, but after exploring with where the best threshold is, I discovered that I could use `groups' of 1x1 pixels, and the random number-based color generation strategy would take care of getting the accurate color. In order, these images are explorations of the end product of 50x50, 20x20, 10x10, 4x4, and 1x1 pixel groups:
+\\
+
+\noindent
+\includegraphics[width=.5\columnwidth]{slice_000_50px}
+\includegraphics[width=.5\columnwidth]{slice_000_20px}
+\includegraphics[width=.5\columnwidth]{slice_000_10px}
+\includegraphics[width=.5\columnwidth]{slice_000_4px}
+\includegraphics[width=\columnwidth]{slice_000_1px}
 
 \subsection{Color Accuracy \& Error}
 
@@ -447,7 +667,34 @@ Due to the fact that screens are ``light-additive" and prints are ``light-subtra
 
 \section{Generating a color wheel}
 
-Once the basis for printing colors was developed, it was time to move into blending colors and learning more about their interactions with eachother. My strategy for generating the color wheel is to iterate from 
+Once the basis for printing colors was developed, it was time to move into blending colors and learning more about their interactions with each other. My strategy for generating the color wheel is to iterate through each pixel and convert it from cartesian coordinates to polar coordinates relative to the center of the part. This returns our radius and theta ($\theta$) that can be almost directly converted to colors. After ensuring the radius is less than the shortest distance from the edge of the square image to the center (this ensures the color wheel is round), we can use the radius as our saturation and the $\theta$ as the hue in degrees. After using the solid color fill algorithm on each pixel, we have a ``perfect" color wheel.
+
+\noindent
+\includegraphics[width=.5\columnwidth]{color-wheel-no-saturation-non-scaled}
+\includegraphics[width=.5\columnwidth]{color-wheel-non-scaled}
+
+
+\noindent
+There are 2 color wheels pictured: one with no consideration put towards the saturation and one who's saturation ranges from 0 to 1 moving from the center to the outer edge of the circle. The final step was to double the width to match the printer's DPI expectations by iterating through each pixel and writing 2 pixels on an auxiliary canvas.
+
+\noindent
+\includegraphics[width=\columnwidth]{color-wheel-scaled}
+
+\subsection{Challenges}
+
+Although theoretically simple, generating the color wheel was an extremely challenging task to accomplish. Between the theoretical basis of colors and it being difficult to properly predict the outcome of a test before printing it, we ended up with a few unsuccessful prints and a few interesting artifacts of generation like wild fractals generated by an order-of-operations issue.
+\\
+
+\noindent
+\includegraphics[width=\columnwidth]{artifact}
+\\
+
+\noindent
+I also battled mild logic and implementation errors, leading to a multitude of strange errors including a few order of operations errors including setting $magenta=\frac{(60-hue)}{60 * 0.5}$ in \ref{0-60} which led to incorrect ratios being generated. These errors were extremely difficult to diagnose because they were not error bugs but were issues in the very heart of the algorithms. Issues like this led to color wheels that looked \textit{close} but not quite there.
+
+\noindent
+\includegraphics[width=0.5\columnwidth]{failed-color-wheel-1}
+\includegraphics[width=0.5\columnwidth]{failed-color-wheel-2}
 
 \end{multicols}
 
