@@ -7,22 +7,10 @@ import sizeOf from "image-size";
 fs.rmSync("./output", { recursive: true });
 fs.mkdirSync("./output");
 
-const genBar = (i, total) => {
-  const progress = (i / total) * 100;
-  const bar = Array.from({ length: 100 }, (_, i) => {
-    if (i < progress) {
-      return "█";
-    } else {
-      return "_";
-    }
-  }).join("");
-  return `[${bar}] ${progress}%`;
-};
-
-const photo = fs.readFileSync("./slu.jpeg");
+const photo = fs.readFileSync("./IMG_1480.png");
 const { height, width } = sizeOf(photo);
 
-const finalWidth = 1000;
+const finalWidth = 600;
 const finalHeight = (finalWidth / width) * height;
 
 const photoCanvas = createCanvas(finalWidth, finalHeight);
