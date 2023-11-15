@@ -765,10 +765,33 @@ simple-get@^3.0.3:
     once "^1.3.1"
     simple-concat "^1.0.0"
 
+split@^0.3.0:
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/split/-/split-0.3.3.tgz#cd0eea5e63a211dfff7eb0f091c4133e2d0dd28f"
+  integrity sha512-wD2AeVmxXRBoX44wAycgjVpMhvbwdI2aZjCkvfNcH1YqHQvJVa1duWc73OyVGJUc05fhFaTZeQ/PYsrmyH0JVA==
+  dependencies:
+    through "2"
+
 statuses@2.0.1:
   version "2.0.1"
   resolved "https://registry.npmjs.org/statuses/-/statuses-2.0.1.tgz"
   integrity sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==
+
+stl@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/stl/-/stl-1.1.1.tgz#d2af1f8dfb3c67450fc690bb77e853aa5850a02b"
+  integrity sha512-iCBT97eALBL7wvSehb5MwNxi2UPqpvXqSVSn0mm/ScM3QTgVMZi6wyn6c5bq4q5lSQwwftMKHgKDwbMArTYP3A==
+  dependencies:
+    split "^0.3.0"
+    stream-fsm "^0.3.1"
+    triangle-normal "0.0.0"
+
+stream-fsm@^0.3.1:
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/stream-fsm/-/stream-fsm-0.3.1.tgz#01e24fa34166bf1493a1f26aefd483cf1c34310a"
+  integrity sha512-7ZGkvb7nDhoM3snDR6yhXjJ+La/iChOmeKfj4Xvmw7AFOzMaZMTat6VZveUjXGMPAh3bmpmewLFELbytWGsEAg==
+  dependencies:
+    through "~2.1.0"
 
 "string-width@^1.0.2 || 2 || 3 || 4", string-width@^4.2.3:
   version "4.2.3"
@@ -805,6 +828,16 @@ tar@^6.1.11:
     mkdirp "^1.0.3"
     yallist "^4.0.0"
 
+through@2:
+  version "2.3.8"
+  resolved "https://registry.yarnpkg.com/through/-/through-2.3.8.tgz#0dd4c9ffaabc357960b1b724115d7e0e86a2e1f5"
+  integrity sha512-w89qg7PI8wAdvX60bMDP+bFoD5Dvhm9oLheFp5O4a2QF0cSBGsBX4qZmadPMvVqlLJBBci+WqGGOAPvcDeNSVg==
+
+through@~2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/through/-/through-2.1.0.tgz#ebcae48745ffda088ad6b8a2fe20ef3ce8ee1bcd"
+  integrity sha512-uvPczOKXZtx4V1j1upuVsJAaUs2sOwCT6CVDT/xsse/AvenhMxgmK1LxILJUm2WoSZYi8RhOb10P9zvwjZOipQ==
+
 toidentifier@1.0.1:
   version "1.0.1"
   resolved "https://registry.npmjs.org/toidentifier/-/toidentifier-1.0.1.tgz"
@@ -814,6 +847,11 @@ tr46@~0.0.3:
   version "0.0.3"
   resolved "https://registry.npmjs.org/tr46/-/tr46-0.0.3.tgz"
   integrity sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==
+
+triangle-normal@0.0.0:
+  version "0.0.0"
+  resolved "https://registry.yarnpkg.com/triangle-normal/-/triangle-normal-0.0.0.tgz#b67c7a7c87a578347c1d97013326f5a082b06937"
+  integrity sha512-h5nTRUpjkhmX0+/0QHoMi0S4PnRsHN8KTDzWvJv/4q7NqssDhlhNJlLgjNMQGjC1iJINCPKa0sSgstY2nueTzw==
 
 type-is@~1.6.18:
   version "1.6.18"

@@ -675,11 +675,12 @@ Due to the fact that screens are ``light-additive" and prints are ``light-subtra
 \subsection{Generating a color wheel}
 
 Once the basis for printing colors was developed, it was time to move into blending colors and learning more about their interactions with each other. My strategy for generating the color wheel is to iterate through each pixel and convert it from cartesian coordinates to polar coordinates relative to the center of the part. This returns our radius and theta ($\theta$) that can be almost directly converted to colors. After ensuring the radius is less than the shortest distance from the edge of the square image to the center (this ensures the color wheel is round), we can use the radius as our saturation and the $\theta$ as the hue in degrees. After using the solid color fill algorithm on each pixel, we have a ``perfect" color wheel.
+\\
 
 \noindent
 \includegraphics[width=.5\columnwidth]{color-wheel-no-saturation-non-scaled}
 \includegraphics[width=.5\columnwidth]{color-wheel-non-scaled}
-
+\
 
 \noindent
 There are 2 color wheels pictured: one with no consideration put towards the saturation and one who's saturation ranges from 0 to 1 moving from the center to the outer edge of the circle. The final step was to double the width to match the printer's DPI expectations by iterating through each pixel and writing 2 pixels on an auxiliary canvas.

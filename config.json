@@ -2,7 +2,7 @@
   "x": 600,
   "y": 600,
   "density": 1,
-  "layers": 1,
+  "layers": 100,
   "resolution": 1,
   "paintRand": false,
   "useUniformRandom": true,
