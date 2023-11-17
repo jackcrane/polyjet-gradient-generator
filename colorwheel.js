@@ -7,6 +7,7 @@ fs.rmSync("./output", { recursive: true });
 fs.mkdirSync("./output");
 
 const drawColorWheel = (i, randholder, ctx, canvas) => {
+  const layer = i;
   const startTime = Date.now();
   const cartesianToPolar = (x, y) => {
     const center = [config.x / 2, config.y / 2];
@@ -31,12 +32,35 @@ const drawColorWheel = (i, randholder, ctx, canvas) => {
     );
   };
 
+  const isPointInOvalPadding = (x, y) => {
+    const padding = 20;
+    const centerX = config.x / 2;
+    const centerY = config.y / 2;
+    const radiusX = config.x / 2 - padding;
+    const radiusY = config.y / 2 - padding;
+
+    // Check if point is inside the oval
+    return (
+      Math.pow((x - centerX) / radiusX, 2) +
+        Math.pow((y - centerY) / radiusY, 2) <=
+      1
+    );
+  };
+
   for (let i = 0; i < config.x; i += config.resolution) {
     for (let j = 0; j < config.y; j += config.resolution) {
       const pointIsInOval = isPointInOval(i, j);
+      // const pointIsInOvalPadding = isPointInOvalPadding(i, j);
+      const pointIsInOvalPadding = false;
 
       if (!pointIsInOval) {
         ctx.fillStyle = config.colors.void;
+        ctx.fillRect(i, j, config.resolution, config.resolution);
+      } else if (
+        pointIsInOvalPadding &&
+        !(layer < 10 || config.layers - layer < 10)
+      ) {
+        ctx.fillStyle = config.colors.white;
         ctx.fillRect(i, j, config.resolution, config.resolution);
       } else {
         const [theta, rad] = cartesianToPolar(i, j);
