@@ -45,7 +45,7 @@
 \noindent\fbox{%
     \parbox{\textwidth}{%
         \textit{Notice:} Content, algorithms, logic, and references in this document are not peer-reviewed, verified, authorized, and should not be interpreted as an authority. Content contained herein may be hypothetical or experimental, and should be evaluated critically by the reader. Any application or use of the information provided is at the sole risk and discretion of the user. The creators of this document bear no responsibility for any consequences arising from the use of the information contained within. This document is not intended for public consumption at this time and until published, all content should be considered confidential.
-    }%
+    }% \
 }
 \\
 
@@ -67,7 +67,7 @@
 \section{Introduction \& Background}
 I wanted to be able to print random objects that could be mathematically defined and 3d printed on our PolyJet 3d printing system. Once parts become complex, colorful, or more unique, it is necessary to begin using customized slicers for more advanced solutions. My first objective is to replicate a part that SLUCAM had when I was looking at schools. It was several inches long, about an inch wide, about $\frac{1}{10}$ of an inch thick. It featured a gradient from white to a color, and from flexible to hard as it went along, the white as flexible and the color as hard. After some discussion, it was made clear that the only way to achieve this is to write some code that would generate the voxel cloud that we could then parse into a print job. The GrabCAD voxel printing documentation\footnote{https://help.grabcad.com/article/230-guide-to-voxel-printing?locale=en} served as a good place to start, providing background on the printer setup, such as resolution, layer height, colors, and formats. 
 
-\subsection{Colors} From Michael and the documentation, I have learned that the printer cannot extrapolate the colors to use from merely an imported image, the image must already be split into colors. The Voxel Print Utility expects a small number of colors to be present in the provided PNG sequence, and assumes materials to use based on colors provided. Color assumptions are made based on this table excerpt:
+\subsection{Colors} From previous internal explorations and the documentation, I have learned that the printer cannot extrapolate the colors to use from merely an imported image, the image must already be split into colors. The Voxel Print Utility expects a small number of colors to be present in the provided PNG sequence, and assumes materials to use based on colors provided. Color assumptions are made based on this table excerpt:
 \\\\
 \noindent
 \begin{tabular}{|c||c|c|c||c|}
@@ -699,11 +699,76 @@ Although theoretically simple, generating the color wheel was an extremely chall
 
 \noindent
 I also battled mild logic and implementation errors, leading to a multitude of strange errors including a few order of operations errors including setting $magenta=\frac{(60-hue)}{60 * 0.5}$ in \ref{0-60} which led to incorrect ratios being generated. These errors were extremely difficult to diagnose because they were not error bugs but were issues in the very heart of the algorithms. Issues like this led to color wheels that looked \textit{close} but not quite there.
+\\
 
 \noindent
 \includegraphics[width=0.5\columnwidth]{failed-color-wheel-1}
 \includegraphics[width=0.5\columnwidth]{failed-color-wheel-2}
+\
 
+\noindent
+This is close, but is still problematic. After a ton of work exploring and debugging the color conversion algorithm I discovered I had made a few mistakes implementing the logic, but that still resulted in an imperfect wheel:
+\\
+
+\noindent
+\includegraphics[width=\columnwidth]{no-cc-correct-imp}
+\
+
+\noindent
+The first has a little opaque white mixed in and the right is pure color. This is clearly much closer but is still not quite good enough. Because we were convinced that the algorithm and implementation were perfect in their own scope, but clearly the scope was lacking. 
+
+\subsubsection{Enter color correction}
+
+After more exploration, I found out that there are color correction (ICC) profiles made by Stratasys for the Polyjet system with different materials installed, and after plotting the lines in Matlab it is obvious that there is some error introduced by color handling:
+
+\noindent
+\includegraphics[width=\columnwidth]{color-correction-graphs}
+
+\noindent
+On these graphs, the y axis is the amount of the given color required to meet the hue as specified by the x axis (scaled from 1-360 to 0-255). I attempted to use the ``Stratasys CMY Representation" to build a wheel because it most closely matched the materials we were using, but it's result left a lot to be desired:
+\\
+
+\noindent
+\includegraphics[width=0.483\columnwidth]{stratasys-cmy-rep-icc-table}
+\includegraphics[width=0.517\columnwidth]{stratasys-cmy-rep-icc}
+\
+
+\noindent
+Notice the cyan banding in the blue section and how it reflects the cyan spikes in the ``Stratasys CMY Representation" from about x=110:170. This is confirmation that the translation between the ICC profile and the codespace works, but that the implementation is still incorrect. 
+\\
+
+\noindent
+We attempted to use a different profile, the ``Stratasys PureWhite CMYW Representation" as the CMYW color space most closely matches the materials we have loaded in our machine. By applying the color correction curve, we got the following image:
+\\
+
+\noindent
+\includegraphics[width=\columnwidth]{cmyw-no-normalization}
+\
+
+\noindent
+Because we are trying to avoid usisng white while figuring out the color blend logic, we normalized each pixel's color such that it sums to 1:
+
+\begin{equation}
+	sum = red + blue + green
+\end{equation}
+\begin{equation}
+	red = red / sum
+\end{equation}
+\begin{equation}
+	blue = blue / sum	
+\end{equation}
+\begin{equation}
+	green = green / sum
+\end{equation}
+\
+
+\noindent
+This turned out to what looked like a promising slice file
+\\
+
+\noindent
+\includegraphics[width=\columnwidth]{cmyw-normalization}
+\
 
 \subsection{Printing a photograph}
 
