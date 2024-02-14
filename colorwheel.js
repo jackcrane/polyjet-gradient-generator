@@ -5,6 +5,8 @@ import { randomBetween } from "./lib/randomBetween.js";
 import { paintSolidColor } from "./lib/paintSolidColor.js";
 fs.rmSync("./output", { recursive: true });
 fs.mkdirSync("./output");
+fs.rmSync("./theo_output", { recursive: true });
+fs.mkdirSync("./theo_output");
 
 const drawColorWheel = (i, randholder, ctx, canvas) => {
   const layer = i;
@@ -77,17 +79,17 @@ const drawColorWheel = (i, randholder, ctx, canvas) => {
 
         const value = 1;
 
-        paintSolidColor(randholder, ctx, {
-          startX: i,
-          startY: j,
-          width: config.resolution,
-          height: config.resolution,
-          color: [hue, saturation, value],
-          colorMode: "hsv",
-        });
+        // paintSolidColor(randholder, ctx, {
+        //   startX: i,
+        //   startY: j,
+        //   width: config.resolution,
+        //   height: config.resolution,
+        //   color: [hue, saturation, value],
+        //   colorMode: "hsv",
+        // });
 
-        // ctx.fillStyle = `hsl(${hue}, ${saturation * 100}%, ${value * 50}%)`;
-        // ctx.fillRect(i, j, config.resolution, config.resolution);
+        ctx.fillStyle = `hsl(${hue}, ${saturation * 100}%, ${value * 50}%)`;
+        ctx.fillRect(i, j, config.resolution, config.resolution);
       }
     }
   }
@@ -101,6 +103,15 @@ const drawColorWheel = (i, randholder, ctx, canvas) => {
 
   const buffer = canvasToWrite.toBuffer("image/png");
   fs.writeFileSync(`./output/slice_${String(i).padStart(3, "0")}.png`, buffer);
+  // Write debug image
+  if (true) {
+    console.log("Writing debug image. Disable this to save time.");
+    const originalBuffer = canvas.toBuffer("image/png");
+    fs.writeFileSync(
+      `./theo_output/original_slice_${String(i).padStart(3, "0")}.png`,
+      originalBuffer
+    );
+  }
 
   const endTime = Date.now();
   console.log(
