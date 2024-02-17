@@ -12,7 +12,7 @@
 \definecolor{testorange}{HTML}{FFAD7A}
 \definecolor{clear}{HTML}{E3E9FD}
 \definecolor{magenta}{HTML}{C60059}
-\definecolor{yellow}{HTML}{F0C500}
+\definecolor{yellow}{HTML}{f0a000}
 \definecolor{cyan}{HTML}{0089A6}
 \definecolor{targetblue}{HTML}{1a4d66}
 
@@ -769,6 +769,80 @@ This turned out to what looked like a promising slice file
 \noindent
 \includegraphics[width=\columnwidth]{cmyw-normalization}
 \
+
+\noindent
+Again this did not work and left us with a disc with mostly green and dark purple, leaving almost no blue and yellow. 
+
+\subsubsection{Perceptual color space}
+
+A UCSB presentation\footnote{https://sites.cs.ucsb.edu/~yfwang/courses/cs181b/ps/Dis6.pdf} provided some guidance on converting between color spaces and we used some coefficients provided in a section dedicated to converting from color to black and white. The thought is that this will help us account for the difference in strengths of colors without attempting to implement some complicated algorithm to match a graph. From here we can grow into further complexity. The presentation provides the following equation to get a luminance value from a RGB triple:
+
+\begin{equation}\label{perceptual equation}
+Y = 0.299R + 0.587G + 0.114B	
+\end{equation}
+
+\noindent
+I changed the color wheel algorithm to incorporate these ratios by converting the hue to a RGB triple, multiplying each value by its coefficient, then converting back into hue, then continuing with the original color decision logic.
+\\
+\
+
+\noindent
+\resizebox{\columnwidth}{!}{
+\begin{tikzpicture}
+\begin{axis}[
+    xlabel={Hue},
+    ylabel={Values},
+    legend style={at={(0.225,0.9)},anchor=west}, % Adjusted for right side legend
+    legend entries={Cyan, Magenta, Yellow, Hue}, % Added Perceptual Hue
+    xmin=0, xmax=360,
+    ymin=0, ymax=1,
+    xtick={0,60, ..., 360},
+    ytick={0,0.2,0.4,0.6,0.8,1},
+    grid=both,
+    grid style={dashed,gray!50},
+]
+
+\addplot[cyan] table [x index=0, y index=1, col sep=comma] {cmy-perceptual.csv};
+\addplot[magenta,dashdotted] table [x index=0, y index=2, col sep=comma] {cmy-perceptual.csv};
+\addplot[yellow,dashed] table [x index=0, y index=3, col sep=comma] {cmy-perceptual.csv};
+\addplot[black,densely dotted, thick] table [x index=0, y expr=\thisrowno{1}/360, col sep=comma] {perceptual-hue.csv};
+\addplot[gray, dotted, thick] table [x index=0, y expr=\thisrowno{0}/360, col sep=comma] {perceptual-hue.csv};
+\end{axis}
+
+\begin{axis}[
+    axis x line=none, % No x-axis
+    axis y line=right, % Right y-axis
+    xmin=0, xmax=360, % Match primary axis
+    ymin=0, ymax=360, % Match primary axis
+    ytick={0, 60, ..., 360},
+    ylabel={Perceptualized Hue}, % Optional if you want a label on the right y-axis
+    ylabel near ticks, % Ensures the right y-axis label is close to its ticks
+]
+
+\end{axis}
+
+\end{tikzpicture}
+}
+
+\noindent
+This frustratingly busy graph shows the conversion from the perfect theoretical hue (shown on this graph as the straight grey dotted line). This line goes from 360 to 360 degrees and serves as a reference for what the perceptualized hue (shown on this graph as the black densely dotted line). On this line, a point's x-position serves as the `input' value to the hue conversion function, and it's y-position is the conversion function's output. From there, the colors are following the same hue to CSV function written in the beginning of this project. Graphed here are the CSV outputs of the conversion function when given the perceptualized hue. We used this to generate a wheel that looked like this:
+\\
+
+\noindent
+\includegraphics[width=\columnwidth]{perceptualized}
+\
+
+\noindent
+Looking at it now, we we can predict that there will be very little blue and yellow but lots of orange and a ton of green. We still gave it a shot and printed it with relatively unsurprising results:
+\\
+
+\noindent
+\includegraphics[width=0.5\columnwidth]{perceptual-result-light}
+\includegraphics[width=0.5\columnwidth]{perceptual-result-light}
+\
+
+\noindent
+While obviously far from an ideal result, there is no banding and the colors do look solid and they look very true to the slice file provided. A postmortem of this print realized what went wrong. Looking back to equation \ref{perceptual equation} from the USCB presentation, there is a pretty obvious result. The coefficient on red ($0.299$) has a very obvious realization in the part: it is roughly $29.9\%$ red. Even more obvious, the part is $58.7\%$ green, leaving about $11.4\%$ to blue.
 
 \subsection{Printing a photograph}
 

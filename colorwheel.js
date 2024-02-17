@@ -79,17 +79,17 @@ const drawColorWheel = (i, randholder, ctx, canvas) => {
 
         const value = 1;
 
-        // paintSolidColor(randholder, ctx, {
-        //   startX: i,
-        //   startY: j,
-        //   width: config.resolution,
-        //   height: config.resolution,
-        //   color: [hue, saturation, value],
-        //   colorMode: "hsv",
-        // });
+        paintSolidColor(randholder, ctx, {
+          startX: i,
+          startY: j,
+          width: config.resolution,
+          height: config.resolution,
+          color: [hue, saturation, value],
+          colorMode: "hsv",
+        });
 
-        ctx.fillStyle = `hsl(${hue}, ${saturation * 100}%, ${value * 50}%)`;
-        ctx.fillRect(i, j, config.resolution, config.resolution);
+        // ctx.fillStyle = `hsl(${hue}, ${saturation * 100}%, ${value * 50}%)`;
+        // ctx.fillRect(i, j, config.resolution, config.resolution);
       }
     }
   }
