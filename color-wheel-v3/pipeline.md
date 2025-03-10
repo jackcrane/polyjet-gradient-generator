@@ -4,31 +4,31 @@
 
 We start by generating a color wheel using the [`generateColorWheel`](#generatecolorwheel) method.
 
-![Step 1](/frames/1-generated-0.png)
+![Step 1](./frames/1-generated-0.png)
 
 ## Step 2: Apply ICC Profile
 
 The next step is to apply an ICC profile to the generated color wheel. We acquire the ICC profile from passing an OBJZF file exported from Grabcad Print through WinRAR (in our case, we were provided the `Tavor_Xrite_i1Profiler_VividCMYW.icc` file). We pass this through the [`applyICCProfile`](#applyiccprofile) method.
 
-![Step 2](/frames/2-icc-0.png)
+![Step 2](./frames/2-icc-0.png)
 
 ## Step 3: Crop Color Wheel
 
 The next step is to crop the color wheel to remove the background. We use the [`cropColorWheel`](#cropcolorwheel) method. This method is pretty substantial.
 
-![Step 3](/frames/3-cropped-0.png)
+![Step 3](./frames/3-cropped-0.png)
 
 ## Step 4: Dither Color Wheel
 
 The next step is to dither the color wheel to create a smoother transition between colors. We use the paintSolidColor method to dither the image.
 
-![Step 4](/frames/4-dithered-0.png)
+![Step 4](./frames/4-dithered-0.png)
 
 ## Step 5: Scale the Color Wheel
 
 To adhere to Polyjet's asymmetric voxel size, we widen the color by 2x.
 
-![Step 5](/frames/5-scale-0.png)
+![Step 5](./frames/5-scale-0.png)
 
 # Function Definitions
 
