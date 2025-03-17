@@ -30,6 +30,12 @@ To adhere to Polyjet's asymmetric voxel size, we widen the color by 2x.
 
 ![Step 5](./frames/5-scale-0.png)
 
+## Step 6: Print
+
+Finally, after printing, the color wheel does not look correct.
+
+![Step 6](./frames/6-print.jpg)
+
 # Function Definitions
 
 ### `generateColorWheel`
