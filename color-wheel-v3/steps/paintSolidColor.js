@@ -2,6 +2,7 @@ import { cartesianToPolar } from "../lib/cartesianToPolar.js";
 import { config } from "../config.js";
 import { hueToCmy } from "./hueToCMY.js";
 import { rgbToHsv } from "./rgbToHsv.js";
+const colors = [];
 
 export const paintSolidColor = (ctx, x, y) => {
   const [, radius] = cartesianToPolar(x, y);
@@ -12,9 +13,17 @@ export const paintSolidColor = (ctx, x, y) => {
   const color = ctx.getImageData(x, y, 1, 1).data;
   let colorInHsv = rgbToHsv(...color);
 
-  let [cyanThreshold, magentaThreshold, yellowThreshold] = hueToCmy(
+  let [_cyanThreshold, _magentaThreshold, _yellowThreshold] = hueToCmy(
     colorInHsv[0]
   );
+  let cyanThreshold = _cyanThreshold ^ 2;
+  let magentaThreshold = _magentaThreshold ^ 2;
+  let yellowThreshold = _yellowThreshold ^ 2;
+
+  // console.log(x, y, [
+  //   colorInHsv,
+  //   [_cyanThreshold, _magentaThreshold, _yellowThreshold],
+  // ]);
 
   const whiteThreshold = Math.random();
   if (whiteThreshold > colorInHsv[1]) {
@@ -44,4 +53,6 @@ export const paintSolidColor = (ctx, x, y) => {
     }
   }
   ctx.fillRect(x, y, 1, 1);
+
+  return [colorInHsv, cyanThreshold, magentaThreshold, yellowThreshold];
 };

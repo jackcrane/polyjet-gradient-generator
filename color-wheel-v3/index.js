@@ -21,12 +21,12 @@ const ctx = canvas.getContext("2d");
 const wideCanvas = createCanvas(config.x * 2, config.y);
 const wideCtx = wideCanvas.getContext("2d");
 
-for (let i = 0; i < 25; i++) {
+for (let i = 0; i < 37 * 2; i++) {
   // Clear the canvas so we start with a fresh state.
   ctx.clearRect(0, 0, config.x, config.y);
 
   // Generate a new color wheel.
-  generateColorWheel(ctx);
+  generateColorWheel(ctx, i < 38);
   // Optionally, save the generated wheel:
   i == 0 && saveCanvas(`1-generated-${i}`);
 
@@ -41,22 +41,29 @@ for (let i = 0; i < 25; i++) {
   i == 0 && saveCanvas(`3-cropped-${i}`);
 
   const startTime = performance.now();
+  const ditheredColors = new Array(config.y)
+    .fill(0)
+    .map(() => new Array(config.x).fill(0));
   for (let col = 0; col < config.x; col++) {
     for (let row = 0; row < config.y; row++) {
-      paintSolidColor(ctx, col, row);
+      const psc = paintSolidColor(ctx, col, row);
+      ditheredColors[row][col] = psc;
       const color = ctx.getImageData(col, row, 1, 1).data;
       wideCtx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
       wideCtx.fillRect(col * 2, row, 2, 1);
     }
   }
+  // writeFileSync(`./frames/dithered-${i}.json`, JSON.stringify(ditheredColors));
 
   i == 0 && saveCanvas(`4-dithered-${i}`);
   i == 0 && saveCanvas(`5-scale-${i}`, "frames", wideCanvas);
 
-  for (let f = 0; f < 100; f += 25) {
-    const frameName = (i + f).toString().padStart(4, "0");
-    saveCanvas(frameName, "layers", wideCanvas);
-  }
+  // for (let f = 0; f < 100; f += 25) {
+  //   const frameName = (i + f).toString().padStart(4, "0");
+  //   saveCanvas(frameName, "layers", wideCanvas);
+  // }
+  const frameName = i.toString().padStart(4, "0");
+  saveCanvas(frameName, "layers", wideCanvas);
 
   const endTime = performance.now();
   console.log(i, endTime - startTime);
