@@ -7,12 +7,27 @@ import { cropColorWheel } from "./steps/cropColorWheel.js";
 import { CanvasToTIFF } from "./canvasToTiff.js";
 import { paintSolidColor } from "./steps/paintSolidColor.js";
 import { check } from "./check.js";
+import sharp from "sharp";
 
 let savecanvascalled = 0;
-export const saveCanvas = (name, dir = "frames", suppliedCanvas = canvas) => {
+export const saveCanvas = async (
+  name,
+  dir = "frames",
+  suppliedCanvas = canvas
+) => {
   savecanvascalled++;
   const buf = suppliedCanvas.toBuffer("image/png");
-  writeFileSync(`${dir}/${name}.png`, buf);
+
+  // macOS system sRGB profile
+  const sRGB_PROFILE = "/System/Library/ColorSync/Profiles/sRGB Profile.icc";
+
+  // Apply the ICC profile using sharp
+  const tagged = await sharp(buf)
+    .withMetadata({ icc: sRGB_PROFILE })
+    .png()
+    .toBuffer();
+
+  writeFileSync(`${dir}/${name}.png`, tagged);
 };
 
 const canvas = createCanvas(config.x, config.y);
